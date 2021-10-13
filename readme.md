@@ -53,3 +53,4 @@ And we decided (for this example) to use time as the filename, because the media
 ## Support Me
 
 You can make a support for this work by <a href="https://karyakarsa.com/ngekoding/">Karya Karsa</a>. Thanks
+"# bot-zdg" 

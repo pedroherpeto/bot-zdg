@@ -72,7 +72,7 @@ client.on('message', async msg => {
         const contact = await msg.getContact();
         setTimeout(function() {
             msg.reply(`@${contact.number}` + ' seu contato já foi encaminhado para o Pedrinho');  
-            client.sendMessage('553588754197@c.us','Contato ZDG. https://wa.me/' + `${contact.number}`);
+            client.sendMessage('5515998566622@c.us','Contato ZDG. https://wa.me/' + `${contact.number}`);
           },1000 + Math.floor(Math.random() * 1000));
   
   }
