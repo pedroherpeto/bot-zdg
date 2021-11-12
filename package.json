@@ -1,7 +1,7 @@
 {
   "name": "bot-zdg",
   "version": "1.0.0",
-  "description": "bot-zdg: based on Whatsapp api by Ngekoding",
+  "description": "bot-zdg: based on Whatsapp API",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
