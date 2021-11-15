@@ -352,7 +352,7 @@ app.post('/send-button', [
   const bt1 = req.body.bt1;
   const bt2 = req.body.bt2;
   const bt3 = req.body.bt3;
-  const buttonTitle = req.body.buttonBody;
+  const buttonTitle = req.body.buttonTitle;
   const buttonFooter = req.body.buttonFooter;
   const button = new Buttons(buttonBody,[{body:bt1},{body:bt2},{body:bt3}],buttonTitle,buttonFooter);
 
