@@ -1,4 +1,4 @@
-const { Client, List, Buttons, MessageMedia } = require('whatsapp-web.js');
+const { Client, MessageMedia, LocalAuth } = require('whatsapp-web.js');
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const socketIO = require('socket.io');
@@ -24,12 +24,6 @@ app.use(fileUpload({
   debug: true
 }));
 
-const SESSION_FILE_PATH = './whatsapp-session.json';
-let sessionCfg;
-if (fs.existsSync(SESSION_FILE_PATH)) {
-  sessionCfg = require(SESSION_FILE_PATH);
-}
-
 app.get('/', (req, res) => {
   res.sendFile('index.html', {
     root: __dirname
@@ -51,42 +45,67 @@ const client = new Client({
       '--disable-gpu'
     ],
   },
-  session: sessionCfg
+  authStrategy: new LocalAuth()
 });
 
-client.on('message', async msg => {
-  if (msg.body !== null && msg.body.includes("Quero saber mais sobre o Método ZDG.")) {
-    msg.reply("🤑 AUMENTE O FATURAMENTO DOS SEUS LANÇAMENTOS DISPARANDO MENSAGENS DIRETAMENTE PARA O WHATSAPP PESSOAL DE CADA LEAD, SEM PRECISAR DE CELULAR. DE FORMA AUTOMÁTICA E EM MASSA. \r\n\r\nhttps://zapdasgalaxias.com.br/ \r\n\r\n⏱️ As inscrições estão *ABERTAS*");
-  } 
-  
-  else if (msg.body !== null && msg.body.includes("Gostaria de conhecer alguns estudos de caso.")) {
-    msg.reply("*Que ótimo, vou te enviar alguns cases de sucesso:*\r\n\r\n📺 https://youtu.be/S4Cwrnn_Llk \r\nNatália: Nós aumentamos o nosso faturamento e vendemos pra mais clientes com a estratégia ZDG.\r\n\r\n📺 https://youtu.be/pu6PpNRJyoM \r\n Renato: A ZDG é um método que vai permitir você aumentar o seu faturamento em pelo menos 30%.\r\n\r\n📺 https://youtu.be/KHGchIAZ5i0 \r\nGustavo: A estratégia mais barata, eficiente e totalmente escalável.\r\n\r\n📺 https://youtu.be/XP2ns7TOdIQ \r\nYuri: A ferramenta me ajudou muito com as automações da minha loja online.\r\n\r\n📺 https://www.youtube.com/watch?v=08wzrPorZcI \r\nGabi: Implementei a estratégia sem saber nada de programação\r\n\r\n📺 https://www.youtube.com/watch?v=mHqEQp94CiE \r\nLéo: Acoplamos o Método ZDG aos nossos lançamento e otimizamos os nossos resultados.");
-  }
-  
-  else if (msg.body !== null && msg.body.includes("O que vou receber entrando para a turma da ZDG?")) {
-    msg.reply("Tudo que você vai ter acesso na Comunidade ZDG.\r\n\r\nMétodo ZDG: R$5.000,00\r\nBot gestor de grupos: R$1.500,00\r\nMulti-disparador via API: R$1.800,00\r\nWebhooks: R$5.200,00\r\nExtensão do Chrome para extração: R$150,00\r\nPacote de aulas sobre grupos de WhatsApp: R$600,00\r\nPacote de aulas + downloads para implementação dos ChatBots: R$5.000,00\r\nPacote de aulas + downloads para notificações automáticas por WhatsApp: R$4.600,00\r\n\r\nNo total, tudo deveria custar:\r\nR$ 23.850,00\r\nMas você vai pagar apenas: R$197,00");
-  }
-  
-  else if (msg.body !== null && msg.body.includes("Gostaria de falar com o Pedrinho, mas obrigado por tentar me ajudar.")) {
+client.on('message', msg => {
+  if (msg.body == '!ping') {
+    msg.reply('pong');
+  } else if (msg.body == 'good morning') {
+    msg.reply('selamat pagi');
+  } else if (msg.body == '!groups') {
+    client.getChats().then(chats => {
+      const groups = chats.filter(chat => chat.isGroup);
 
-        const contact = await msg.getContact();
-        setTimeout(function() {
-            msg.reply(`@${contact.number}` + ' seu contato já foi encaminhado para o Pedrinho');  
-            client.sendMessage('5515998566622@c.us','Contato ZDG. https://wa.me/' + `${contact.number}`);
-          },1000 + Math.floor(Math.random() * 1000));
-  
-  }
-  
-  else if (msg.body !== null && msg.body.includes("Quero aprender como montar minha API de WhatsApp de GRAÇA.")) {
-    msg.reply("Aproveite o conteúdo e aprenda em poucos minutos como colocar sua API de WhatsAPP no ar, gratuitamente:\r\n\r\n🎥 https://youtu.be/899mKB3UHdI");
-  }
-  
-  else if (msg.body !== null) {
-    let sections = [{title:'Escolha a opção desejada',rows:[{title:'1- Quero saber mais sobre o Método ZDG.', description: 'Entre agora para nossa comunidade.'},{title:'2- Gostaria de conhecer alguns estudos de caso.', description: 'Aplique o método e colha os resultados.'},{title:'3- O que vou receber entrando para a turma da ZDG?', description: 'Mais de R$20.000,00 somente em BÔNUS.'},{title:'4- Gostaria de falar com o Pedrinho, mas obrigado por tentar me ajudar.', description: 'Clica aqui que eu transfiro pra ele.'},{title:'5- Quero aprender como montar minha API de WhatsApp de GRAÇA.', description: 'Tutorial mamão com açúcar.'}]}];
-    let list = new List('😁 Olá, tudo bem? Como vai você? Escolha uma das opções abaixo para iniciarmos a nossa conversa:','Clique aqui',sections,'ZAP das Galáxias','© ZDG');
-    client.sendMessage(msg.from, list);
+      if (groups.length == 0) {
+        msg.reply('You have no group yet.');
+      } else {
+        let replyMsg = '*YOUR GROUPS*\n\n';
+        groups.forEach((group, i) => {
+          replyMsg += `ID: ${group.id._serialized}\nName: ${group.name}\n\n`;
+        });
+        replyMsg += '_You can use the group id to send a message to the group._'
+        msg.reply(replyMsg);
+      }
+    });
   }
 
+  // Downloading media
+  if (msg.hasMedia) {
+    msg.downloadMedia().then(media => {
+      // To better understanding
+      // Please look at the console what data we get
+      console.log(media);
+
+      if (media) {
+        // The folder to store: change as you want!
+        // Create if not exists
+        const mediaPath = './downloaded-media/';
+
+        if (!fs.existsSync(mediaPath)) {
+          fs.mkdirSync(mediaPath);
+        }
+
+        // Get the file extension by mime-type
+        const extension = mime.extension(media.mimetype);
+        
+        // Filename: change as you want! 
+        // I will use the time for this example
+        // Why not use media.filename? Because the value is not certain exists
+        const filename = new Date().getTime();
+
+        const fullFilename = mediaPath + filename + '.' + extension;
+
+        // Save to file
+        try {
+          fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' }); 
+          console.log('File downloaded successfully!', fullFilename);
+        } catch (err) {
+          console.log('Failed to save the file:', err);
+        }
+      }
+    });
+  }
 });
 
 client.initialize();
@@ -108,16 +127,10 @@ io.on('connection', function(socket) {
     socket.emit('message', 'Whatsapp is ready!');
   });
 
-  client.on('authenticated', (session) => {
+  client.on('authenticated', () => {
     socket.emit('authenticated', 'Whatsapp is authenticated!');
     socket.emit('message', 'Whatsapp is authenticated!');
-    console.log('AUTHENTICATED', session);
-    sessionCfg = session;
-    fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function(err) {
-      if (err) {
-        console.error(err);
-      }
-    });
+    console.log('AUTHENTICATED');
   });
 
   client.on('auth_failure', function(session) {
@@ -126,10 +139,6 @@ io.on('connection', function(socket) {
 
   client.on('disconnected', (reason) => {
     socket.emit('message', 'Whatsapp is disconnected!');
-    fs.unlinkSync(SESSION_FILE_PATH, function(err) {
-        if(err) return console.log(err);
-        console.log('Session file deleted!');
-    });
     client.destroy();
     client.initialize();
   });
@@ -321,123 +330,6 @@ app.post('/clear-message', [
       response: err
     });
   })
-});
-
-// Send button
-app.post('/send-button', [
-  body('number').notEmpty(),
-  body('buttonBody').notEmpty(),
-  body('bt1').notEmpty(),
-  body('bt2').notEmpty(),
-  body('bt3').notEmpty(),
-  body('buttonTitle').notEmpty(),
-  body('buttonFooter').notEmpty()
-  
-], async (req, res) => {
-  const errors = validationResult(req).formatWith(({
-    msg
-  }) => {
-    return msg;
-  });
-
-  if (!errors.isEmpty()) {
-    return res.status(422).json({
-      status: false,
-      message: errors.mapped()
-    });
-  }
-
-  const number = phoneNumberFormatter(req.body.number);
-  const buttonBody = req.body.buttonBody;
-  const bt1 = req.body.bt1;
-  const bt2 = req.body.bt2;
-  const bt3 = req.body.bt3;
-  const buttonTitle = req.body.buttonTitle;
-  const buttonFooter = req.body.buttonFooter;
-  const button = new Buttons(buttonBody,[{body:bt1},{body:bt2},{body:bt3}],buttonTitle,buttonFooter);
-
-  const isRegisteredNumber = await checkRegisteredNumber(number);
-
-  if (!isRegisteredNumber) {
-    return res.status(422).json({
-      status: false,
-      message: 'The number is not registered'
-    });
-  }
-
-  client.sendMessage(number, button).then(response => {
-    res.status(200).json({
-      status: true,
-      response: response
-    });
-  }).catch(err => {
-    res.status(500).json({
-      status: false,
-      response: err
-    });
-  });
-});
-
-
-app.post('/send-list', [
-  body('number').notEmpty(),
-  body('ListItem1').notEmpty(),
-  body('desc1').notEmpty(),
-  body('ListItem2').notEmpty(),
-  body('desc2').notEmpty(),
-  body('List_body').notEmpty(),
-  body('btnText').notEmpty(),
-  body('Title').notEmpty(),
-  body('footer').notEmpty()
-  
-], async (req, res) => {
-  const errors = validationResult(req).formatWith(({
-    msg
-  }) => {
-    return msg;
-  });
-
-  if (!errors.isEmpty()) {
-    return res.status(422).json({
-      status: false,
-      message: errors.mapped()
-    });
-  }
-
-  const number = phoneNumberFormatter(req.body.number);
-  const sectionTitle = req.body.sectionTitle;
-  const ListItem1 = req.body.ListItem1;
-  const desc1 = req.body.desc1;
-  const ListItem2 = req.body.ListItem2;
-  const desc2 = req.body.desc2;
-  const List_body = req.body.List_body;
-  const btnText = req.body.btnText;
-  const Title = req.body.Title;
-  const footer = req.body.footer;
-
-  const sections = [{title:sectionTitle,rows:[{title:ListItem1, description: desc1},{title:ListItem2, description: desc2}]}];
-  const list = new List(List_body,btnText,sections,Title,footer);
-
-  const isRegisteredNumber = await checkRegisteredNumber(number);
-
-  if (!isRegisteredNumber) {
-    return res.status(422).json({
-      status: false,
-      message: 'The number is not registered'
-    });
-  }
-
-  client.sendMessage(number, list).then(response => {
-    res.status(200).json({
-      status: true,
-      response: response
-    });
-  }).catch(err => {
-    res.status(500).json({
-      status: false,
-      response: err
-    });
-  });
 });
 
 server.listen(port, function() {
