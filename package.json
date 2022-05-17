@@ -23,7 +23,7 @@
     "mime-types": "^2.1.32",
     "qrcode": "^1.4.4",
     "socket.io": "2.3.0",
-    "whatsapp-web.js": "^1.16.4"
+    "whatsapp-web.js": "^1.16.6"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"
