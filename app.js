@@ -15,6 +15,7 @@ const port = process.env.PORT || 8000;
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
+const cors = require('cors');
 
 app.use(express.json());
 app.use(express.urlencoded({
@@ -22,6 +23,10 @@ app.use(express.urlencoded({
 }));
 app.use(fileUpload({
   debug: true
+}));
+
+app.use(cors({
+  origin: 'http://localhost:8080'
 }));
 
 app.get('/', (req, res) => {
