@@ -26,7 +26,7 @@ app.use(fileUpload({
 }));
 
 app.use(cors({
-  origin: 'http://localhost:8080'
+  origin: '*'
 }));
 
 app.get('/', (req, res) => {
@@ -119,7 +119,7 @@ client.initialize();
 io.on('connection', function(socket) {
   socket.emit('message', 'Connecting...');
 
-  
+
   client.on('qr', (qr) => {
     console.log('QR RECEIVED', qr);
     qrcode.toDataURL(qr, (err, url) => {
