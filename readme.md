@@ -20,5 +20,5 @@ Watch the tutorials:
 
 ## Support Me
 
-You can make a support for this work by <a href="https://zapdasgalaxias.com.br">Pedrinho da NASA</a>. Thanks
+You can make a support for this work by <a href="https://comunidadezdg.com.br">Comunidade ZDG - Pedrinho da NASA</a>. Thanks
 "# bot-zdg" 
