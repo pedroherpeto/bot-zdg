@@ -1,10 +1,10 @@
 # BOT ZDG
 
-Hi, this is the implementation example of <a href="https://github.com/pedroslopez/whatsapp-web.js">whatsapp-web.js</a>
+Hi, this is the implementation example of <a href="https://github.com/pedroslopez/whatsapp-web.js">wweb.js</a>
 
 Watch the tutorials:
 
-- <a href="https://www.youtube.com/channel/UCrPbAoQKz42Gm0mLdWatAEA">Zap das Galáxias</a>
+- <a href="https://www.youtube.com/channel/UCrPbAoQKz42Gm0mLdWatAEA">Comunidade ZDG</a>
 
 
 ### How to use?
